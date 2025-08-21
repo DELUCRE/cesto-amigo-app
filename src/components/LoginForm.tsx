@@ -30,7 +30,7 @@ export function LoginForm({ onLogin }: LoginFormProps) {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-hero">
-      <Card className="w-full max-w-md shadow-elegant">
+      <Card className="w-full max-w-md shadow-elegant backdrop-blur-sm bg-gradient-card-subtle border-0">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center">
             <ShoppingBasket className="w-8 h-8 text-primary-foreground" />

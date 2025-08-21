@@ -37,7 +37,7 @@ export function Navigation({ userType, activeSection, onSectionChange }: Navigat
   const menuItems = userType === 'admin' ? adminMenuItems : vendedorMenuItems;
 
   return (
-    <aside className="w-64 bg-card border-r border-border h-screen">
+    <aside className="w-64 bg-gradient-card-subtle border-r border-border/50 h-screen backdrop-blur-sm">
       <nav className="p-4 space-y-2">
         {menuItems.map((item) => (
           <Button

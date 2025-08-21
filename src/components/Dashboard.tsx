@@ -69,9 +69,9 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-background">
       {/* Header */}
-      <header className="bg-card border-b border-border">
+      <header className="bg-gradient-card-subtle border-b border-border/50 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
@@ -104,7 +104,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
               {/* Stats Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {stats.map((stat, index) => (
-                  <Card key={index} className="shadow-card">
+                  <Card key={index} className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
                     <CardHeader className="flex flex-row items-center justify-between pb-3">
                       <CardTitle className="text-sm font-medium text-muted-foreground">
                         {stat.title}
@@ -126,7 +126,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
               </div>
 
               {/* Recent Transactions */}
-              <Card className="shadow-card">
+              <Card className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
                 <CardHeader>
                   <div className="flex items-center justify-between">
                     <CardTitle>Transações Recentes</CardTitle>
@@ -167,7 +167,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
           )}
           
           {activeSection !== "dashboard" && (
-            <Card className="shadow-card">
+            <Card className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="capitalize">{activeSection}</CardTitle>
               </CardHeader>
