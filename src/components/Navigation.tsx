@@ -6,7 +6,8 @@ import {
   ShoppingBasket, 
   Calendar, 
   FileText,
-  Settings
+  Settings,
+  UserPlus
 } from "lucide-react";
 
 interface NavigationProps {
@@ -23,6 +24,7 @@ export function Navigation({ userType, activeSection, onSectionChange }: Navigat
     { id: "cestas", label: "Cestas Básicas", icon: ShoppingBasket },
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "relatorios", label: "Relatórios", icon: FileText },
+    { id: "cadastro", label: "Cadastrar Usuário", icon: UserPlus },
     { id: "configuracoes", label: "Configurações", icon: Settings },
   ];
 
@@ -32,6 +34,7 @@ export function Navigation({ userType, activeSection, onSectionChange }: Navigat
     { id: "cestas", label: "Cestas Básicas", icon: ShoppingBasket },
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "relatorios", label: "Relatórios", icon: FileText },
+    { id: "cadastro", label: "Cadastrar Vendedor", icon: UserPlus },
   ];
 
   const menuItems = userType === 'admin' ? adminMenuItems : vendedorMenuItems;

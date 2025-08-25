@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 
 const Index = () => {
-  const { user, loading, signOut, isAuthenticated } = useAuth();
+  const { user, loading, signOut, isAuthenticated, profile } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -54,9 +54,23 @@ const Index = () => {
     );
   }
 
-  // Para este momento, vamos assumir que todos os usuários são vendedores
-  // Futuramente isso pode ser expandido com roles
-  return <Dashboard userType="vendedor" onLogout={handleLogout} />;
+  // Wait for profile to load
+  if (!profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-center flex items-center justify-center gap-2">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              Carregando perfil...
+            </CardTitle>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
+  return <Dashboard userType={profile.role} onLogout={handleLogout} />;
 };
 
 export default Index;

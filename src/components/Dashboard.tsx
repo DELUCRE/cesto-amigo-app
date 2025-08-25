@@ -13,6 +13,7 @@ import {
   LogOut
 } from "lucide-react";
 import { Navigation } from "./Navigation";
+import { UserRegistration } from "./UserRegistration";
 
 interface DashboardProps {
   userType: 'admin' | 'vendedor';
@@ -78,7 +79,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
               <ShoppingBasket className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="font-bold text-xl">Cesta Amigo</h1>
+              <h1 className="font-bold text-xl">Cesta Porto</h1>
               <p className="text-sm text-muted-foreground capitalize">{userType}</p>
             </div>
           </div>
@@ -166,7 +167,14 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
             </div>
           )}
           
-          {activeSection !== "dashboard" && (
+          {activeSection === "cadastro" && (
+            <div className="space-y-6">
+              <h2 className="text-2xl font-bold">Cadastrar Usuário</h2>
+              <UserRegistration />
+            </div>
+          )}
+          
+          {activeSection !== "dashboard" && activeSection !== "cadastro" && (
             <Card className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="capitalize">{activeSection}</CardTitle>
