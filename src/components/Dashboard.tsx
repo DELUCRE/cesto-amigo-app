@@ -14,6 +14,12 @@ import {
 } from "lucide-react";
 import { Navigation } from "./Navigation";
 import { UserRegistration } from "./UserRegistration";
+import { Clientes } from "./pages/Clientes";
+import { Vendedores } from "./pages/Vendedores";
+import { CestaBasica } from "./pages/CestaBasica";
+import { Agenda } from "./pages/Agenda";
+import { Relatorio } from "./pages/Relatorio";
+import { Configuracoes } from "./pages/Configuracoes";
 
 interface DashboardProps {
   userType: 'admin' | 'vendedor';
@@ -174,7 +180,14 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
             </div>
           )}
           
-          {activeSection !== "dashboard" && activeSection !== "cadastro" && (
+          {activeSection === "clientes" && <Clientes />}
+          {activeSection === "vendedores" && <Vendedores />}
+          {activeSection === "cestas" && <CestaBasica />}
+          {activeSection === "agenda" && <Agenda />}
+          {activeSection === "relatorios" && <Relatorio />}
+          {activeSection === "configuracoes" && <Configuracoes />}
+          
+          {!["dashboard", "cadastro", "clientes", "vendedores", "cestas", "agenda", "relatorios", "configuracoes"].includes(activeSection) && (
             <Card className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
               <CardHeader>
                 <CardTitle className="capitalize">{activeSection}</CardTitle>
