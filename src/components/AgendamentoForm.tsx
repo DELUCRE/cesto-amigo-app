@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,13 +15,19 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 interface AgendamentoFormProps {
   onSave: () => void;
 }
 
 export function AgendamentoForm({ onSave }: AgendamentoFormProps) {
+  const { profile } = useAuth();
   const [date, setDate] = useState<Date>();
+  const [clients, setClients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     cliente: "",
     tipo: "",
@@ -30,11 +36,55 @@ export function AgendamentoForm({ onSave }: AgendamentoFormProps) {
     observacoes: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    fetchClients();
+  }, [profile]);
+
+  const fetchClients = async () => {
+    if (!profile) return;
+    
+    const { data, error } = await supabase
+      .from('clients')
+      .select('*')
+      .eq('seller_id', profile.user_id);
+      
+    if (!error && data) {
+      setClients(data);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Aqui seria feita a integração com o backend
-    console.log("Agendamento:", { ...formData, data: date });
-    onSave();
+    if (!date || !profile) return;
+    
+    setLoading(true);
+    
+    try {
+      const appointmentDate = new Date(date);
+      appointmentDate.setHours(
+        parseInt(formData.horario.split(':')[0]),
+        parseInt(formData.horario.split(':')[1])
+      );
+
+      const { error } = await supabase
+        .from('appointments')
+        .insert({
+          client_id: formData.cliente,
+          seller_id: profile.user_id,
+          appointment_date: appointmentDate.toISOString(),
+          notes: `${formData.tipo} - ${formData.endereco}${formData.observacoes ? '. ' + formData.observacoes : ''}`
+        });
+
+      if (error) throw error;
+
+      toast.success("Agendamento criado com sucesso!");
+      onSave();
+    } catch (error) {
+      toast.error("Erro ao criar agendamento");
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -47,10 +97,11 @@ export function AgendamentoForm({ onSave }: AgendamentoFormProps) {
               <SelectValue placeholder="Selecione o cliente" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="maria">Maria Santos</SelectItem>
-              <SelectItem value="joao">João Silva</SelectItem>
-              <SelectItem value="ana">Ana Costa</SelectItem>
-              <SelectItem value="carlos">Carlos Mendes</SelectItem>
+              {clients.map((client) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -132,8 +183,8 @@ export function AgendamentoForm({ onSave }: AgendamentoFormProps) {
         <Button type="button" variant="outline">
           Cancelar
         </Button>
-        <Button type="submit" className="bg-gradient-primary">
-          Salvar Agendamento
+        <Button type="submit" className="bg-gradient-primary" disabled={loading}>
+          {loading ? "Salvando..." : "Salvar Agendamento"}
         </Button>
       </div>
     </form>

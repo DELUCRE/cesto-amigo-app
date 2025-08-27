@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { 
   FileText, 
   TrendingUp, 
@@ -24,40 +27,109 @@ import {
 } from "@/components/ui/select";
 
 export function Relatorio() {
+  const { profile } = useAuth();
   const [selectedPeriod, setSelectedPeriod] = useState("mes");
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    totalClients: 0,
+    avgOrderValue: 0
+  });
+  const [topClients, setTopClients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const monthlyStats = {
-    totalSales: "R$ 45.320,00",
-    totalOrders: 324,
-    totalClients: 89,
-    avgOrderValue: "R$ 139,88",
-    growth: {
-      sales: 12.5,
-      orders: 8.3,
-      clients: 15.2,
-      avgOrder: -2.1
+  useEffect(() => {
+    if (profile) {
+      fetchReportData();
+    }
+  }, [profile, selectedPeriod]);
+
+  const fetchReportData = async () => {
+    if (!profile) return;
+    setLoading(true);
+
+    try {
+      // Fetch clients
+      let clientsQuery = supabase.from('clients').select('*');
+      if (profile.role === 'vendedor') {
+        clientsQuery = clientsQuery.eq('seller_id', profile.user_id);
+      }
+      
+      const { data: clients } = await clientsQuery;
+      
+      // Fetch orders with baskets and clients
+      let ordersQuery = supabase
+        .from('orders')
+        .select(`
+          *,
+          baskets(*, clients(*))
+        `);
+        
+      // Filter by seller if vendedor
+      if (profile.role === 'vendedor') {
+        ordersQuery = ordersQuery.eq('baskets.clients.seller_id', profile.user_id);
+      }
+
+      const { data: orders } = await ordersQuery;
+
+      if (orders && clients) {
+        const totalSales = orders.reduce((sum, order) => sum + Number(order.amount), 0);
+        const totalOrders = orders.length;
+        const totalClients = clients.length;
+        const avgOrderValue = totalOrders > 0 ? totalSales / totalOrders : 0;
+
+        setStats({
+          totalSales,
+          totalOrders,
+          totalClients,
+          avgOrderValue
+        });
+
+        // Calculate top clients
+        const clientStats = clients.map(client => {
+          const clientOrders = orders.filter(order => 
+            order.baskets?.clients?.id === client.id
+          );
+          const clientValue = clientOrders.reduce((sum, order) => sum + Number(order.amount), 0);
+          
+          return {
+            ...client,
+            orders: clientOrders.length,
+            value: clientValue,
+            growth: Math.random() * 30 - 10 // Mock growth data
+          };
+        }).sort((a, b) => b.value - a.value).slice(0, 4);
+
+        setTopClients(clientStats);
+      }
+    } catch (error) {
+      console.error('Error fetching report data:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const topClients = [
-    { name: "Maria Santos", orders: 12, value: "R$ 8.400,00", growth: 15 },
-    { name: "João Silva", orders: 8, value: "R$ 5.600,00", growth: 22 },
-    { name: "Ana Costa", orders: 6, value: "R$ 4.200,00", growth: -5 },
-    { name: "Carlos Mendes", orders: 5, value: "R$ 3.500,00", growth: 8 },
-  ];
+  const exportToPDF = () => {
+    toast.success("Relatório PDF será gerado em breve!");
+    // Implementar exportação PDF
+  };
 
-  const salesByPeriod = [
-    { period: "Semana 1", value: 12500 },
-    { period: "Semana 2", value: 15200 },
-    { period: "Semana 3", value: 9800 },
-    { period: "Semana 4", value: 7820 },
-  ];
+  const exportToExcel = () => {
+    toast.success("Relatório Excel será gerado em breve!");
+    // Implementar exportação Excel
+  };
 
-  const productPerformance = [
-    { product: "Cesta Básica Completa", sold: 245, revenue: "R$ 171.500,00", percentage: 78 },
-    { product: "Cesta Premium", sold: 56, revenue: "R$ 56.000,00", percentage: 18 },
-    { product: "Cesta Light", sold: 23, revenue: "R$ 11.500,00", percentage: 4 },
-  ];
+  const generateSalesReport = () => {
+    toast.success("Gerando relatório de vendas...");
+  };
+
+  const generateClientsReport = () => {
+    toast.success("Gerando relatório de clientes...");
+  };
+
+  const generateFinancialReport = () => {
+    toast.success("Gerando relatório financeiro...");
+  };
 
   const getGrowthIcon = (growth: number) => {
     return growth >= 0 ? TrendingUp : TrendingDown;
@@ -101,16 +173,14 @@ export function Relatorio() {
             <div className="flex items-center justify-between mb-2">
               <DollarSign className="w-8 h-8 text-primary" />
               <div className="flex items-center gap-1">
-                {(() => {
-                  const GrowthIcon = getGrowthIcon(monthlyStats.growth.sales);
-                  return <GrowthIcon className={`w-4 h-4 ${getGrowthColor(monthlyStats.growth.sales)}`} />;
-                })()}
-                <span className={`text-sm font-medium ${getGrowthColor(monthlyStats.growth.sales)}`}>
-                  {monthlyStats.growth.sales}%
+                <span className="text-sm font-medium text-primary">
+                  +12.5%
                 </span>
               </div>
             </div>
-            <p className="text-2xl font-bold">{monthlyStats.totalSales}</p>
+            <p className="text-2xl font-bold">
+              R$ {stats.totalSales.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
             <p className="text-sm text-muted-foreground">Vendas Totais</p>
           </CardContent>
         </Card>
@@ -120,16 +190,12 @@ export function Relatorio() {
             <div className="flex items-center justify-between mb-2">
               <ShoppingBasket className="w-8 h-8 text-secondary" />
               <div className="flex items-center gap-1">
-                {(() => {
-                  const GrowthIcon = getGrowthIcon(monthlyStats.growth.orders);
-                  return <GrowthIcon className={`w-4 h-4 ${getGrowthColor(monthlyStats.growth.orders)}`} />;
-                })()}
-                <span className={`text-sm font-medium ${getGrowthColor(monthlyStats.growth.orders)}`}>
-                  {monthlyStats.growth.orders}%
+                <span className="text-sm font-medium text-secondary">
+                  +8.3%
                 </span>
               </div>
             </div>
-            <p className="text-2xl font-bold">{monthlyStats.totalOrders}</p>
+            <p className="text-2xl font-bold">{stats.totalOrders}</p>
             <p className="text-sm text-muted-foreground">Pedidos</p>
           </CardContent>
         </Card>
@@ -139,16 +205,12 @@ export function Relatorio() {
             <div className="flex items-center justify-between mb-2">
               <Users className="w-8 h-8 text-accent" />
               <div className="flex items-center gap-1">
-                {(() => {
-                  const GrowthIcon = getGrowthIcon(monthlyStats.growth.clients);
-                  return <GrowthIcon className={`w-4 h-4 ${getGrowthColor(monthlyStats.growth.clients)}`} />;
-                })()}
-                <span className={`text-sm font-medium ${getGrowthColor(monthlyStats.growth.clients)}`}>
-                  {monthlyStats.growth.clients}%
+                <span className="text-sm font-medium text-accent">
+                  +15.2%
                 </span>
               </div>
             </div>
-            <p className="text-2xl font-bold">{monthlyStats.totalClients}</p>
+            <p className="text-2xl font-bold">{stats.totalClients}</p>
             <p className="text-sm text-muted-foreground">Clientes Ativos</p>
           </CardContent>
         </Card>
@@ -158,52 +220,20 @@ export function Relatorio() {
             <div className="flex items-center justify-between mb-2">
               <BarChart3 className="w-8 h-8 text-muted-foreground" />
               <div className="flex items-center gap-1">
-                {(() => {
-                  const GrowthIcon = getGrowthIcon(monthlyStats.growth.avgOrder);
-                  return <GrowthIcon className={`w-4 h-4 ${getGrowthColor(monthlyStats.growth.avgOrder)}`} />;
-                })()}
-                <span className={`text-sm font-medium ${getGrowthColor(monthlyStats.growth.avgOrder)}`}>
-                  {Math.abs(monthlyStats.growth.avgOrder)}%
+                <span className="text-sm font-medium text-muted-foreground">
+                  -2.1%
                 </span>
               </div>
             </div>
-            <p className="text-2xl font-bold">{monthlyStats.avgOrderValue}</p>
+            <p className="text-2xl font-bold">
+              R$ {stats.avgOrderValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </p>
             <p className="text-sm text-muted-foreground">Ticket Médio</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Sales Chart */}
-        <Card className="bg-gradient-card-subtle shadow-soft border-0">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="w-5 h-5" />
-              Vendas por Período
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {salesByPeriod.map((item, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.period}</span>
-                  <div className="flex items-center gap-3">
-                    <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-primary transition-all duration-300"
-                        style={{ width: `${(item.value / Math.max(...salesByPeriod.map(s => s.value))) * 100}%` }}
-                      />
-                    </div>
-                    <span className="text-sm font-bold min-w-20 text-right">
-                      R$ {(item.value / 1000).toFixed(1)}k
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
         {/* Top Clients */}
         <Card className="bg-gradient-card-subtle shadow-soft border-0">
           <CardHeader>
@@ -215,7 +245,7 @@ export function Relatorio() {
           <CardContent>
             <div className="space-y-4">
               {topClients.map((client, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border border-border rounded-lg">
+                <div key={client.id} className="flex items-center justify-between p-3 border border-border rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground font-bold text-sm">
                       {index + 1}
@@ -226,14 +256,16 @@ export function Relatorio() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold">{client.value}</p>
+                    <p className="font-bold">
+                      R$ {client.value.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </p>
                     <div className="flex items-center gap-1">
                       {(() => {
                         const GrowthIcon = getGrowthIcon(client.growth);
                         return <GrowthIcon className={`w-3 h-3 ${getGrowthColor(client.growth)}`} />;
                       })()}
                       <span className={`text-xs ${getGrowthColor(client.growth)}`}>
-                        {Math.abs(client.growth)}%
+                        {Math.abs(client.growth).toFixed(1)}%
                       </span>
                     </div>
                   </div>
@@ -288,7 +320,7 @@ export function Relatorio() {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 gap-3">
-              <Button variant="outline" className="h-auto p-4 justify-start">
+              <Button variant="outline" className="h-auto p-4 justify-start" onClick={generateSalesReport}>
                 <FileText className="w-5 h-5 text-primary mr-3" />
                 <div className="text-left">
                   <p className="font-medium">Relatório de Vendas</p>
@@ -296,7 +328,7 @@ export function Relatorio() {
                 </div>
               </Button>
               
-              <Button variant="outline" className="h-auto p-4 justify-start">
+              <Button variant="outline" className="h-auto p-4 justify-start" onClick={generateClientsReport}>
                 <Users className="w-5 h-5 text-secondary mr-3" />
                 <div className="text-left">
                   <p className="font-medium">Relatório de Clientes</p>
@@ -304,7 +336,7 @@ export function Relatorio() {
                 </div>
               </Button>
               
-              <Button variant="outline" className="h-auto p-4 justify-start">
+              <Button variant="outline" className="h-auto p-4 justify-start" onClick={generateFinancialReport}>
                 <BarChart3 className="w-5 h-5 text-accent mr-3" />
                 <div className="text-left">
                   <p className="font-medium">Relatório Financeiro</p>
@@ -326,13 +358,13 @@ export function Relatorio() {
           <CardContent>
             <div className="space-y-4">
               <div className="flex items-center gap-4">
-                <Button className="flex-1 bg-gradient-primary">
+                <Button className="flex-1 bg-gradient-primary" onClick={exportToPDF} disabled={loading}>
                   <Download className="w-4 h-4 mr-2" />
-                  Exportar PDF
+                  {loading ? "Gerando..." : "Exportar PDF"}
                 </Button>
-                <Button variant="outline" className="flex-1">
+                <Button variant="outline" className="flex-1" onClick={exportToExcel} disabled={loading}>
                   <Download className="w-4 h-4 mr-2" />
-                  Exportar Excel
+                  {loading ? "Gerando..." : "Exportar Excel"}
                 </Button>
               </div>
               

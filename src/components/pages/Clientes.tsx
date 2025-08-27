@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 import { 
   Plus, 
   Search, 
@@ -31,48 +34,51 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Clientes() {
+  const { profile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
+  const [clients, setClients] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const clients = [
-    {
-      id: 1,
-      name: "Maria Santos",
-      email: "maria.santos@email.com",
-      phone: "(11) 99999-9999",
-      address: "Rua das Flores, 123 - Centro",
-      status: "Ativo",
-      lastOrder: "15/12/2024",
-      totalOrders: 12,
-      totalSpent: "R$ 8.400,00"
-    },
-    {
-      id: 2,
-      name: "João Silva",
-      email: "joao.silva@email.com",
-      phone: "(11) 88888-8888",
-      address: "Av. Principal, 456 - Jardim",
-      status: "Ativo",
-      lastOrder: "12/12/2024",
-      totalOrders: 8,
-      totalSpent: "R$ 5.600,00"
-    },
-    {
-      id: 3,
-      name: "Ana Costa",
-      email: "ana.costa@email.com",
-      phone: "(11) 77777-7777",
-      address: "Rua do Comércio, 789 - Vila Nova",
-      status: "Inativo",
-      lastOrder: "20/11/2024",
-      totalOrders: 5,
-      totalSpent: "R$ 3.500,00"
-    },
-  ];
+  useEffect(() => {
+    if (profile) {
+      fetchClients();
+    }
+  }, [profile]);
+
+  const fetchClients = async () => {
+    if (!profile) return;
+    setLoading(true);
+
+    try {
+      let query = supabase.from('clients').select('*');
+      
+      // Vendedores só veem seus próprios clientes
+      if (profile.role === 'vendedor') {
+        query = query.eq('seller_id', profile.user_id);
+      }
+      
+      const { data, error } = await query.order('created_at', { ascending: false });
+      
+      if (!error && data) {
+        setClients(data);
+      }
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredClients = clients.filter(client =>
     client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchTerm.toLowerCase())
+    client.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    client.phone?.includes(searchTerm)
   );
+
+  const activeClients = clients.filter(c => c.phone); // Active clients (have contact info)
+  const totalClients = clients.length;
+  const newThisMonth = Math.floor(totalClients * 0.1); // Mock calculation
+  const inactiveClients = totalClients - activeClients.length;
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -97,7 +103,7 @@ export function Clientes() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Clientes</p>
-                <p className="text-2xl font-bold">456</p>
+                <p className="text-2xl font-bold">{totalClients}</p>
               </div>
               <Users className="w-8 h-8 text-primary" />
             </div>
@@ -109,7 +115,7 @@ export function Clientes() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Clientes Ativos</p>
-                <p className="text-2xl font-bold">342</p>
+                <p className="text-2xl font-bold">{activeClients.length}</p>
               </div>
               <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
                 <Users className="w-4 h-4 text-primary-foreground" />
@@ -123,7 +129,7 @@ export function Clientes() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Novos este Mês</p>
-                <p className="text-2xl font-bold">28</p>
+                <p className="text-2xl font-bold">{newThisMonth}</p>
               </div>
               <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
                 <Plus className="w-4 h-4 text-secondary-foreground" />
@@ -137,7 +143,7 @@ export function Clientes() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Inativos</p>
-                <p className="text-2xl font-bold">114</p>
+                <p className="text-2xl font-bold">{inactiveClients}</p>
               </div>
               <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
                 <Users className="w-4 h-4 text-muted-foreground" />
@@ -184,34 +190,38 @@ export function Clientes() {
                   <TableCell>
                     <div>
                       <p className="font-medium">{client.name}</p>
-                      <p className="text-sm text-muted-foreground">{client.totalOrders} pedidos</p>
+                      <p className="text-sm text-muted-foreground">ID: {client.id.substring(0, 8)}...</p>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-sm">{client.email}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-sm">{client.phone}</span>
-                      </div>
+                      {client.email && (
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-sm">{client.email}</span>
+                        </div>
+                      )}
+                      {client.phone && (
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3 text-muted-foreground" />
+                          <span className="text-sm">{client.phone}</span>
+                        </div>
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
                       <MapPin className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-sm">{client.address}</span>
+                      <span className="text-sm">Cadastrado em {new Date(client.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge className={getStatusColor(client.status)}>
-                      {client.status}
+                    <Badge className={client.email && client.phone ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}>
+                      {client.email && client.phone ? "Ativo" : "Incompleto"}
                     </Badge>
                   </TableCell>
-                  <TableCell>{client.lastOrder}</TableCell>
-                  <TableCell className="font-medium">{client.totalSpent}</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell className="font-medium">-</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

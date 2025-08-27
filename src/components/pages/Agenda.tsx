@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Calendar, 
   Clock, 
@@ -23,52 +25,34 @@ import {
 import { AgendamentoForm } from "@/components/AgendamentoForm";
 
 export function Agenda() {
+  const { profile } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [appointments, setAppointments] = useState<any[]>([]);
 
-  const appointments = [
-    {
-      id: 1,
-      client: "Maria Santos",
-      date: "2024-12-26",
-      time: "09:00",
-      type: "Entrega",
-      status: "Agendado",
-      address: "Rua das Flores, 123 - Centro",
-      notes: "Entregar cesta básica - Cliente preferencial"
-    },
-    {
-      id: 2,
-      client: "João Silva",
-      date: "2024-12-26",
-      time: "14:30",
-      type: "Visita",
-      status: "Confirmado",
-      address: "Av. Principal, 456 - Jardim",
-      notes: "Apresentação de novos produtos"
-    },
-    {
-      id: 3,
-      client: "Ana Costa",
-      date: "2024-12-27",
-      time: "10:15",
-      type: "Entrega",
-      status: "Pendente",
-      address: "Rua do Comércio, 789 - Vila Nova",
-      notes: "Confirmar endereço antes da entrega"
-    },
-    {
-      id: 4,
-      client: "Carlos Mendes",
-      date: "2024-12-27",
-      time: "16:00",
-      type: "Reunião",
-      status: "Agendado",
-      address: "Escritório - Centro",
-      notes: "Negociação de contrato anual"
-    },
-  ];
+  useEffect(() => {
+    if (profile) {
+      fetchAppointments();
+    }
+  }, [profile]);
+
+  const fetchAppointments = async () => {
+    if (!profile) return;
+    
+    const { data, error } = await supabase
+      .from('appointments')
+      .select(`
+        *,
+        clients(name)
+      `)
+      .eq('seller_id', profile.user_id)
+      .order('appointment_date', { ascending: true });
+      
+    if (!error && data) {
+      setAppointments(data);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -98,13 +82,13 @@ export function Agenda() {
   };
 
   const todayAppointments = appointments.filter(apt => 
-    new Date(apt.date).toDateString() === new Date().toDateString()
+    new Date(apt.appointment_date).toDateString() === new Date().toDateString()
   );
 
   const tomorrowAppointments = appointments.filter(apt => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    return new Date(apt.date).toDateString() === tomorrow.toDateString();
+    return new Date(apt.appointment_date).toDateString() === tomorrow.toDateString();
   });
 
   return (
@@ -129,7 +113,10 @@ export function Agenda() {
                 Crie um novo compromisso na sua agenda
               </DialogDescription>
             </DialogHeader>
-            <AgendamentoForm onSave={() => setIsDialogOpen(false)} />
+            <AgendamentoForm onSave={() => {
+              setIsDialogOpen(false);
+              fetchAppointments();
+            }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -216,24 +203,27 @@ export function Agenda() {
                   key={appointment.id}
                   className="flex items-start gap-4 p-4 border border-border rounded-lg hover:bg-accent/20 transition-colors"
                 >
-                  <div className="text-2xl">{getTypeIcon(appointment.type)}</div>
+                  <div className="text-2xl">📅</div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="font-semibold">{appointment.client}</h3>
+                        <h3 className="font-semibold">{appointment.clients?.name}</h3>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {appointment.time}
+                            {new Date(appointment.appointment_date).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
-                            {appointment.address}
+                            {appointment.notes?.split(' - ')[1]?.split('.')[0] || "Endereço não informado"}
                           </div>
                         </div>
                       </div>
-                      <Badge className={getStatusColor(appointment.status)}>
-                        {appointment.status}
+                      <Badge className="bg-primary text-primary-foreground">
+                        Agendado
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{appointment.notes}</p>
@@ -275,24 +265,27 @@ export function Agenda() {
                   key={appointment.id}
                   className="flex items-start gap-4 p-4 border border-border rounded-lg hover:bg-accent/20 transition-colors"
                 >
-                  <div className="text-2xl">{getTypeIcon(appointment.type)}</div>
+                  <div className="text-2xl">📅</div>
                   <div className="flex-1">
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <h3 className="font-semibold">{appointment.client}</h3>
+                        <h3 className="font-semibold">{appointment.clients?.name}</h3>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-1">
                             <Clock className="w-3 h-3" />
-                            {appointment.time}
+                            {new Date(appointment.appointment_date).toLocaleTimeString('pt-BR', { 
+                              hour: '2-digit', 
+                              minute: '2-digit' 
+                            })}
                           </div>
                           <div className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
-                            {appointment.address}
+                            {appointment.notes?.split(' - ')[1]?.split('.')[0] || "Endereço não informado"}
                           </div>
                         </div>
                       </div>
-                      <Badge className={getStatusColor(appointment.status)}>
-                        {appointment.status}
+                      <Badge className="bg-primary text-primary-foreground">
+                        Agendado
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">{appointment.notes}</p>
