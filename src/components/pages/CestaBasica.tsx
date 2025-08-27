@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { 
   ShoppingBasket, 
   CreditCard, 
@@ -10,7 +12,9 @@ import {
   Package,
   Wheat,
   Apple,
-  Milk
+  Milk,
+  Plus,
+  Minus
 } from "lucide-react";
 import {
   Dialog,
@@ -24,6 +28,10 @@ import { Separator } from "@/components/ui/separator";
 
 export function CestaBasica() {
   const [selectedPayment, setSelectedPayment] = useState<string>("");
+  const [quantity, setQuantity] = useState(1);
+
+  const basketPrice = 700;
+  const totalPrice = basketPrice * quantity;
 
   const basketItems = [
     { name: "Arroz 5kg", icon: Wheat, quantity: 1 },
@@ -48,8 +56,8 @@ export function CestaBasica() {
       id: "cartao-3x",
       title: "3x no Cartão",
       description: "Sem juros",
-      value: "R$ 233,33",
-      total: "R$ 700,00",
+      value: `R$ ${(totalPrice / 3).toFixed(2).replace('.', ',')}`,
+      total: `R$ ${totalPrice.toFixed(2).replace('.', ',')}`,
       icon: CreditCard,
       badge: "Sem juros"
     },
@@ -57,8 +65,8 @@ export function CestaBasica() {
       id: "boleto-2x",
       title: "2x no Boleto",
       description: "Boleto bancário",
-      value: "R$ 350,00",
-      total: "R$ 700,00",
+      value: `R$ ${(totalPrice / 2).toFixed(2).replace('.', ',')}`,
+      total: `R$ ${totalPrice.toFixed(2).replace('.', ',')}`,
       icon: FileText,
       badge: "Tradicional"
     },
@@ -66,8 +74,8 @@ export function CestaBasica() {
       id: "avista",
       title: "À Vista",
       description: "Pagamento à vista",
-      value: "R$ 700,00",
-      total: "R$ 700,00",
+      value: `R$ ${totalPrice.toFixed(2).replace('.', ',')}`,
+      total: `R$ ${totalPrice.toFixed(2).replace('.', ',')}`,
       icon: DollarSign,
       badge: "Melhor opção"
     }
@@ -84,6 +92,28 @@ export function CestaBasica() {
         <div>
           <h1 className="text-3xl font-bold">Cesta Básica</h1>
           <p className="text-muted-foreground">Cesta completa para suas necessidades básicas</p>
+        </div>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center border border-border rounded-lg">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              disabled={quantity <= 1}
+            >
+              <Minus className="w-4 h-4" />
+            </Button>
+            <div className="px-4 py-2 border-x border-border">
+              <span className="font-medium">Qtd: {quantity}</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setQuantity(quantity + 1)}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -126,8 +156,10 @@ export function CestaBasica() {
                   <p className="text-sm text-muted-foreground">Todos os itens inclusos</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-primary">R$ 700,00</p>
-                  <p className="text-sm text-muted-foreground">Preço especial</p>
+                  <p className="text-3xl font-bold text-primary">R$ {totalPrice.toFixed(2).replace('.', ',')}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {quantity > 1 ? `${quantity} cestas × R$ 700,00` : 'Preço especial'}
+                  </p>
                 </div>
               </div>
             </CardContent>

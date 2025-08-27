@@ -33,8 +33,7 @@ export function Navigation({ userType, activeSection, onSectionChange }: Navigat
     { id: "clientes", label: "Meus Clientes", icon: Users },
     { id: "cestas", label: "Cestas Básicas", icon: ShoppingBasket },
     { id: "agenda", label: "Agenda", icon: Calendar },
-    { id: "relatorios", label: "Relatórios", icon: FileText },
-    { id: "cadastro", label: "Cadastrar Vendedor", icon: UserPlus },
+    { id: "cadastro", label: "Cadastrar Cliente", icon: UserPlus },
   ];
 
   const menuItems = userType === 'admin' ? adminMenuItems : vendedorMenuItems;

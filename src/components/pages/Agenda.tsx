@@ -20,10 +20,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { AgendamentoForm } from "@/components/AgendamentoForm";
 
 export function Agenda() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const appointments = [
     {
@@ -113,23 +115,21 @@ export function Agenda() {
           <h1 className="text-3xl font-bold">Agenda</h1>
           <p className="text-muted-foreground">Gerencie seus compromissos e entregas</p>
         </div>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button className="bg-gradient-primary">
               <Plus className="w-4 h-4 mr-2" />
               Novo Agendamento
             </Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Novo Agendamento</DialogTitle>
               <DialogDescription>
                 Crie um novo compromisso na sua agenda
               </DialogDescription>
             </DialogHeader>
-            <div className="text-center py-4">
-              <p className="text-muted-foreground">Formulário de agendamento será implementado</p>
-            </div>
+            <AgendamentoForm onSave={() => setIsDialogOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>

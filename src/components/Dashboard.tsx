@@ -135,13 +135,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
               {/* Recent Transactions */}
               <Card className="bg-gradient-card-subtle shadow-soft border-0 backdrop-blur-sm">
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle>Transações Recentes</CardTitle>
-                    <Button size="sm" className="bg-gradient-primary">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Nova Cesta
-                    </Button>
-                  </div>
+                  <CardTitle>Transações Recentes</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">

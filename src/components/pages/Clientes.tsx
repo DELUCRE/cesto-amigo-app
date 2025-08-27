@@ -85,15 +85,9 @@ export function Clientes() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Clientes</h1>
-          <p className="text-muted-foreground">Gerencie seus clientes e relacionamentos</p>
-        </div>
-        <Button className="bg-gradient-primary">
-          <Plus className="w-4 h-4 mr-2" />
-          Novo Cliente
-        </Button>
+      <div>
+        <h1 className="text-3xl font-bold">Clientes</h1>
+        <p className="text-muted-foreground">Gerencie seus clientes e relacionamentos</p>
       </div>
 
       {/* Stats Cards */}

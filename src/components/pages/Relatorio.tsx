@@ -249,71 +249,110 @@ export function Relatorio() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <PieChart className="w-5 h-5" />
-            Performance por Produto
+            Performance do Produto
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {productPerformance.map((product, index) => (
-              <div key={index} className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-medium">{product.product}</span>
-                  <span className="text-sm text-muted-foreground">{product.sold} vendidos</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-gradient-primary transition-all duration-500"
-                      style={{ width: `${product.percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-sm font-bold min-w-24 text-right">{product.revenue}</span>
-                  <Badge variant="secondary" className="min-w-12 justify-center">
-                    {product.percentage}%
-                  </Badge>
-                </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">Cesta Básica Completa</span>
+                <span className="text-sm text-muted-foreground">245 vendidos</span>
               </div>
-            ))}
+              <div className="flex items-center gap-4">
+                <div className="flex-1 h-3 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-primary transition-all duration-500"
+                    style={{ width: "100%" }}
+                  />
+                </div>
+                <span className="text-sm font-bold min-w-24 text-right">R$ 171.500,00</span>
+                <Badge variant="secondary" className="min-w-12 justify-center">
+                  100%
+                </Badge>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      {/* Export Options */}
-      <Card className="bg-gradient-card-subtle shadow-soft border-0">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="w-5 h-5" />
-            Relatórios Disponíveis
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <FileText className="w-8 h-8 text-primary" />
-              <div className="text-center">
-                <p className="font-medium">Relatório de Vendas</p>
-                <p className="text-xs text-muted-foreground">Dados detalhados de vendas</p>
+      {/* Export and Report Options */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Report Types */}
+        <Card className="bg-gradient-card-subtle shadow-soft border-0">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="w-5 h-5" />
+              Relatórios Específicos
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 gap-3">
+              <Button variant="outline" className="h-auto p-4 justify-start">
+                <FileText className="w-5 h-5 text-primary mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Relatório de Vendas</p>
+                  <p className="text-xs text-muted-foreground">Análise detalhada das vendas realizadas</p>
+                </div>
+              </Button>
+              
+              <Button variant="outline" className="h-auto p-4 justify-start">
+                <Users className="w-5 h-5 text-secondary mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Relatório de Clientes</p>
+                  <p className="text-xs text-muted-foreground">Comportamento e histórico dos clientes</p>
+                </div>
+              </Button>
+              
+              <Button variant="outline" className="h-auto p-4 justify-start">
+                <BarChart3 className="w-5 h-5 text-accent mr-3" />
+                <div className="text-left">
+                  <p className="font-medium">Relatório Financeiro</p>
+                  <p className="text-xs text-muted-foreground">Dados financeiros e faturamento</p>
+                </div>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Export Options */}
+        <Card className="bg-gradient-card-subtle shadow-soft border-0">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="w-5 h-5" />
+              Exportar Dados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              <div className="flex items-center gap-4">
+                <Button className="flex-1 bg-gradient-primary">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar PDF
+                </Button>
+                <Button variant="outline" className="flex-1">
+                  <Download className="w-4 h-4 mr-2" />
+                  Exportar Excel
+                </Button>
               </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <Users className="w-8 h-8 text-secondary" />
-              <div className="text-center">
-                <p className="font-medium">Relatório de Clientes</p>
-                <p className="text-xs text-muted-foreground">Análise do comportamento</p>
+              
+              <div className="text-center py-4 border border-border rounded-lg">
+                <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-sm font-medium mb-1">Dados Atualizados</p>
+                <p className="text-xs text-muted-foreground">
+                  Última atualização: {new Date().toLocaleDateString('pt-BR')}
+                </p>
               </div>
-            </Button>
-            
-            <Button variant="outline" className="h-auto p-4 flex flex-col items-center gap-2">
-              <BarChart3 className="w-8 h-8 text-accent" />
-              <div className="text-center">
-                <p className="font-medium">Relatório Financeiro</p>
-                <p className="text-xs text-muted-foreground">Dados financeiros completos</p>
+              
+              <div className="bg-accent/10 p-3 rounded-lg">
+                <p className="text-xs text-muted-foreground">
+                  Os relatórios incluem dados do período selecionado acima e podem ser filtrados por vendedor, cliente ou produto.
+                </p>
               </div>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
