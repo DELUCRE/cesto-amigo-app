@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Navigation } from "./Navigation";
 import { UserRegistration } from "./UserRegistration";
+import { ClientRegistration } from "./ClientRegistration";
 import { Clientes } from "./pages/Clientes";
 import { Vendedores } from "./pages/Vendedores";
 import { CestaBasica } from "./pages/CestaBasica";
@@ -169,8 +170,17 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
           
           {activeSection === "cadastro" && (
             <div className="space-y-6">
-              <h2 className="text-2xl font-bold">Cadastrar Usuário</h2>
-              <UserRegistration />
+              {userType === 'admin' ? (
+                <>
+                  <h2 className="text-2xl font-bold">Cadastrar Usuário</h2>
+                  <UserRegistration />
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-bold">Cadastrar Cliente</h2>
+                  <ClientRegistration />
+                </>
+              )}
             </div>
           )}
           
