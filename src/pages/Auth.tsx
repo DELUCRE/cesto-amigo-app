@@ -30,37 +30,25 @@ const Auth = () => {
     setError("");
 
     try {
-      // First, try to find user by username
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('username', username)
-        .maybeSingle();
+      // Get email by username using our database function
+      const { data: emailData, error: emailError } = await supabase
+        .rpc('get_email_by_username', { _username: username });
 
-      if (profileError) {
+      if (emailError) {
         setError("Erro ao buscar usuário.");
         setLoading(false);
         return;
       }
 
-      if (!profileData) {
+      if (!emailData) {
         setError("Nome de usuário não encontrado.");
-        setLoading(false);
-        return;
-      }
-
-      // Get the user's email from auth.users
-      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.user_id);
-      
-      if (userError || !userData.user?.email) {
-        setError("Erro ao buscar dados do usuário.");
         setLoading(false);
         return;
       }
 
       // Now sign in with email and password
       const { error } = await supabase.auth.signInWithPassword({
-        email: userData.user.email,
+        email: emailData,
         password,
       });
 
