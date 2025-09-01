@@ -14,6 +14,13 @@ export function ClientRegistration() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [documentNumber, setDocumentNumber] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -35,6 +42,13 @@ export function ClientRegistration() {
           name,
           email: email || null,
           phone: phone || null,
+          address: address || null,
+          city: city || null,
+          state: state || null,
+          postal_code: postalCode || null,
+          document_number: documentNumber || null,
+          birth_date: birthDate || null,
+          notes: notes || null,
           seller_id: profile.user_id
         });
 
@@ -46,6 +60,13 @@ export function ClientRegistration() {
         setName("");
         setEmail("");
         setPhone("");
+        setAddress("");
+        setCity("");
+        setState("");
+        setPostalCode("");
+        setDocumentNumber("");
+        setBirthDate("");
+        setNotes("");
       }
     } catch (err) {
       setError("Erro inesperado. Tente novamente.");
@@ -74,7 +95,7 @@ export function ClientRegistration() {
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="name">Nome *</Label>
+            <Label htmlFor="name">Nome Completo *</Label>
             <Input
               id="name"
               type="text"
@@ -86,26 +107,116 @@ export function ClientRegistration() {
             />
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(11) 99999-9999"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="address">Endereço</Label>
             <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@exemplo.com"
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Rua, número, complemento"
               disabled={loading}
             />
           </div>
 
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Cidade</Label>
+              <Input
+                id="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Cidade"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="state">Estado</Label>
+              <Input
+                id="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="UF"
+                maxLength={2}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="postalCode">CEP</Label>
+              <Input
+                id="postalCode"
+                type="text"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                placeholder="00000-000"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="documentNumber">CPF/CNPJ</Label>
+              <Input
+                id="documentNumber"
+                type="text"
+                value={documentNumber}
+                onChange={(e) => setDocumentNumber(e.target.value)}
+                placeholder="000.000.000-00"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="birthDate">Data de Nascimento</Label>
+              <Input
+                id="birthDate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                disabled={loading}
+              />
+            </div>
+          </div>
+
           <div className="space-y-2">
-            <Label htmlFor="phone">Telefone</Label>
+            <Label htmlFor="notes">Observações</Label>
             <Input
-              id="phone"
-              type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              placeholder="(11) 99999-9999"
+              id="notes"
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Informações adicionais sobre o cliente"
               disabled={loading}
             />
           </div>

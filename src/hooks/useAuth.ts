@@ -73,14 +73,32 @@ export function useAuth() {
     return { error };
   };
 
-  const signUp = async (email: string, password: string, displayName: string, role: 'admin' | 'vendedor' = 'vendedor') => {
+  const signUp = async (
+    email: string, 
+    password: string, 
+    displayName: string, 
+    role: 'admin' | 'vendedor' = 'vendedor',
+    additionalData?: {
+      username?: string;
+      phone?: string;
+      address?: string;
+      city?: string;
+      state?: string;
+      postal_code?: string;
+      document_number?: string;
+    }
+  ) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           display_name: displayName,
-          role: role
+          role: role,
+          ...additionalData
         }
       }
     });

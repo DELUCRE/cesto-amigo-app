@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 const Auth = () => {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,14 +30,43 @@ const Auth = () => {
     setError("");
 
     try {
+      // First, try to find user by username
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('username', username)
+        .maybeSingle();
+
+      if (profileError) {
+        setError("Erro ao buscar usuário.");
+        setLoading(false);
+        return;
+      }
+
+      if (!profileData) {
+        setError("Nome de usuário não encontrado.");
+        setLoading(false);
+        return;
+      }
+
+      // Get the user's email from auth.users
+      const { data: userData, error: userError } = await supabase.auth.admin.getUserById(profileData.user_id);
+      
+      if (userError || !userData.user?.email) {
+        setError("Erro ao buscar dados do usuário.");
+        setLoading(false);
+        return;
+      }
+
+      // Now sign in with email and password
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: userData.user.email,
         password,
       });
 
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          setError("Email ou senha incorretos.");
+          setError("Nome de usuário ou senha incorretos.");
         } else {
           setError(error.message);
         }
@@ -72,13 +101,13 @@ const Auth = () => {
               <div className="space-y-4">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
+                    <Label htmlFor="signin-username">Nome de Usuário</Label>
                     <Input
-                      id="signin-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="seu@email.com"
+                      id="signin-username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="seu_usuario"
                       required
                       disabled={loading}
                     />

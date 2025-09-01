@@ -14,6 +14,13 @@ export function UserRegistration() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [postalCode, setPostalCode] = useState("");
+  const [documentNumber, setDocumentNumber] = useState("");
   const [role, setRole] = useState<'admin' | 'vendedor'>('vendedor');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -49,7 +56,15 @@ export function UserRegistration() {
     }
 
     try {
-      const { error } = await signUp(email, password, displayName, role);
+      const { error } = await signUp(email, password, displayName, role, {
+        username,
+        phone,
+        address,
+        city,
+        state,
+        postal_code: postalCode,
+        document_number: documentNumber
+      });
 
       if (error) {
         if (error.message.includes("User already registered")) {
@@ -63,6 +78,13 @@ export function UserRegistration() {
         setEmail("");
         setPassword("");
         setDisplayName("");
+        setUsername("");
+        setPhone("");
+        setAddress("");
+        setCity("");
+        setState("");
+        setPostalCode("");
+        setDocumentNumber("");
         setRole('vendedor');
       }
     } catch (err) {
@@ -94,34 +116,63 @@ export function UserRegistration() {
             </Alert>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="displayName">Nome</Label>
-            <Input
-              id="displayName"
-              type="text"
-              value={displayName}
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Nome completo"
-              required
-              disabled={loading}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="displayName">Nome Completo *</Label>
+              <Input
+                id="displayName"
+                type="text"
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="Nome completo"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="username">Nome de Usuário *</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="usuario123"
+                required
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Telefone</Label>
+              <Input
+                id="phone"
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="(11) 99999-9999"
+                disabled={loading}
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="email@exemplo.com"
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="password">Senha</Label>
+            <Label htmlFor="password">Senha *</Label>
             <Input
               id="password"
               type="password"
@@ -131,6 +182,69 @@ export function UserRegistration() {
               required
               disabled={loading}
               minLength={6}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="address">Endereço</Label>
+            <Input
+              id="address"
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="Rua, número, complemento"
+              disabled={loading}
+            />
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Cidade</Label>
+              <Input
+                id="city"
+                type="text"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                placeholder="Cidade"
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="state">Estado</Label>
+              <Input
+                id="state"
+                type="text"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                placeholder="UF"
+                maxLength={2}
+                disabled={loading}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="postalCode">CEP</Label>
+              <Input
+                id="postalCode"
+                type="text"
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                placeholder="00000-000"
+                disabled={loading}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="documentNumber">CPF/CNPJ</Label>
+            <Input
+              id="documentNumber"
+              type="text"
+              value={documentNumber}
+              onChange={(e) => setDocumentNumber(e.target.value)}
+              placeholder="000.000.000-00"
+              disabled={loading}
             />
           </div>
 

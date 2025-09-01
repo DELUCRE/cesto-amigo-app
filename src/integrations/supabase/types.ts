@@ -93,30 +93,51 @@ export type Database = {
       }
       clients: {
         Row: {
+          address: string | null
+          birth_date: string | null
+          city: string | null
           created_at: string | null
+          document_number: string | null
           email: string | null
           id: string
           name: string
+          notes: string | null
           phone: string | null
+          postal_code: string | null
           seller_id: string | null
+          state: string | null
           updated_at: string | null
         }
         Insert: {
+          address?: string | null
+          birth_date?: string | null
+          city?: string | null
           created_at?: string | null
+          document_number?: string | null
           email?: string | null
           id?: string
           name: string
+          notes?: string | null
           phone?: string | null
+          postal_code?: string | null
           seller_id?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Update: {
+          address?: string | null
+          birth_date?: string | null
+          city?: string | null
           created_at?: string | null
+          document_number?: string | null
           email?: string | null
           id?: string
           name?: string
+          notes?: string | null
           phone?: string | null
+          postal_code?: string | null
           seller_id?: string | null
+          state?: string | null
           updated_at?: string | null
         }
         Relationships: [
@@ -166,25 +187,46 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          city: string | null
           created_at: string | null
           display_name: string
+          document_number: string | null
+          phone: string | null
+          postal_code: string | null
           role: Database["public"]["Enums"]["app_role"]
+          state: string | null
           updated_at: string | null
           user_id: string
+          username: string | null
         }
         Insert: {
+          address?: string | null
+          city?: string | null
           created_at?: string | null
           display_name: string
+          document_number?: string | null
+          phone?: string | null
+          postal_code?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          state?: string | null
           updated_at?: string | null
           user_id: string
+          username?: string | null
         }
         Update: {
+          address?: string | null
+          city?: string | null
           created_at?: string | null
           display_name?: string
+          document_number?: string | null
+          phone?: string | null
+          postal_code?: string | null
           role?: Database["public"]["Enums"]["app_role"]
+          state?: string | null
           updated_at?: string | null
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }
