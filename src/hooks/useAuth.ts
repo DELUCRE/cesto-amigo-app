@@ -88,21 +88,64 @@ export function useAuth() {
       document_number?: string;
     }
   ) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          display_name: displayName,
-          role: role,
-          ...additionalData
+    // If current user is admin, use edge function to avoid session disruption
+    if (profile?.role === 'admin') {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        if (!sessionData.session) {
+          return { error: new Error('No active session') };
         }
+
+        const SUPABASE_URL = "https://hrbvxsolxamjzwqdynhy.supabase.co";
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhyYnZ4c29seGFtanp3cWR5bmh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU4MDkyNzcsImV4cCI6MjA3MTM4NTI3N30.433sMauRpwV8Ryu6av-KjWZnMIM85m7_xpdUxTud_Z8";
+
+        const response = await fetch(`${SUPABASE_URL}/functions/v1/create-user`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${sessionData.session.access_token}`,
+            'apikey': SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            userData: {
+              display_name: displayName,
+              role: role,
+              ...additionalData
+            }
+          })
+        });
+
+        const result = await response.json();
+        
+        if (!response.ok) {
+          return { error: new Error(result.error || 'Failed to create user') };
+        }
+
+        return { error: null };
+      } catch (error) {
+        console.error('Error calling create-user function:', error);
+        return { error: error as Error };
       }
-    });
-    return { error };
+    } else {
+      // For non-admin users, use regular signup
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            display_name: displayName,
+            role: role,
+            ...additionalData
+          }
+        }
+      });
+      return { error };
+    }
   };
 
   return {
