@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { 
   ShoppingBasket, 
   CreditCard, 
@@ -25,10 +26,48 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+interface Client {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+}
 
 export function CestaBasica() {
   const [selectedPayment, setSelectedPayment] = useState<string>("");
   const [quantity, setQuantity] = useState(1);
+  const [selectedClient, setSelectedClient] = useState<string>("");
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loadingClients, setLoadingClients] = useState(true);
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, name, email, phone')
+        .order('name');
+
+      if (error) {
+        console.error('Erro ao buscar clientes:', error);
+        toast.error('Erro ao carregar lista de clientes');
+        return;
+      }
+
+      setClients(data || []);
+    } catch (error) {
+      console.error('Erro ao buscar clientes:', error);
+      toast.error('Erro ao carregar lista de clientes');
+    } finally {
+      setLoadingClients(false);
+    }
+  };
 
   const basketPrice = 700;
   const totalPrice = basketPrice * quantity;
@@ -85,6 +124,24 @@ export function CestaBasica() {
     setSelectedPayment(paymentId);
   };
 
+  const handleFinalizePurchase = () => {
+    if (!selectedClient) {
+      toast.error('Por favor, selecione um cliente');
+      return;
+    }
+    if (!selectedPayment) {
+      toast.error('Por favor, selecione uma forma de pagamento');
+      return;
+    }
+
+    const selectedClientData = clients.find(c => c.id === selectedClient);
+    const selectedPaymentData = paymentOptions.find(p => p.id === selectedPayment);
+    
+    toast.success(
+      `Pedido finalizado para ${selectedClientData?.name} - ${selectedPaymentData?.title} - Total: R$ ${totalPrice.toFixed(2).replace('.', ',')}`
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -116,6 +173,40 @@ export function CestaBasica() {
           </div>
         </div>
       </div>
+
+      {/* Client Selection */}
+      <Card className="bg-gradient-card-subtle shadow-soft border-0">
+        <CardHeader>
+          <CardTitle>Selecionar Cliente</CardTitle>
+          <p className="text-sm text-muted-foreground">Escolha o cliente que está comprando a cesta básica</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            <Label htmlFor="client-select">Cliente *</Label>
+            <Select 
+              value={selectedClient} 
+              onValueChange={setSelectedClient}
+              disabled={loadingClients}
+            >
+              <SelectTrigger id="client-select">
+                <SelectValue placeholder={loadingClients ? "Carregando clientes..." : "Selecione um cliente"} />
+              </SelectTrigger>
+              <SelectContent>
+                {clients.map((client) => (
+                  <SelectItem key={client.id} value={client.id}>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{client.name}</span>
+                      <span className="text-sm text-muted-foreground">
+                        {client.email || client.phone || 'Sem contato'}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Basket Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -213,9 +304,12 @@ export function CestaBasica() {
               
               <Button 
                 className="w-full bg-gradient-primary text-lg h-12 font-semibold"
-                disabled={!selectedPayment}
+                disabled={!selectedPayment || !selectedClient}
+                onClick={handleFinalizePurchase}
               >
-                {selectedPayment ? "Finalizar Pedido" : "Selecione uma forma de pagamento"}
+                {!selectedClient ? "Selecione um cliente" : 
+                 !selectedPayment ? "Selecione uma forma de pagamento" : 
+                 "Finalizar Pedido"}
               </Button>
               
               <Dialog>

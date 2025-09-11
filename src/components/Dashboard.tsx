@@ -21,6 +21,7 @@ import { CestaBasica } from "./pages/CestaBasica";
 import { Agenda } from "./pages/Agenda";
 import { Relatorio } from "./pages/Relatorio";
 import { Configuracoes } from "./pages/Configuracoes";
+import { useAuth } from "@/hooks/useAuth";
 
 interface DashboardProps {
   userType: 'admin' | 'vendedor';
@@ -29,6 +30,7 @@ interface DashboardProps {
 
 export function Dashboard({ userType, onLogout }: DashboardProps) {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const { profile } = useAuth();
 
   const stats = [
     {
@@ -87,7 +89,9 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
             </div>
             <div>
               <h1 className="font-bold text-xl">Cesta Porto</h1>
-              <p className="text-sm text-muted-foreground capitalize">{userType}</p>
+              <p className="text-sm text-muted-foreground">
+                {profile?.display_name || 'Usuário'}
+              </p>
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={onLogout}>
