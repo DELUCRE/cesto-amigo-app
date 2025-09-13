@@ -14,8 +14,12 @@ import {
   Eye,
   Edit,
   Trash2,
-  Shield
+  Shield,
+  X
 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
   Table,
@@ -34,8 +38,9 @@ import {
 
 export function Vendedores() {
   const [searchTerm, setSearchTerm] = useState("");
-
-  const sellers = [
+  const [editingSeller, setEditingSeller] = useState<any>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [sellers, setSellers] = useState([
     {
       id: 1,
       name: "Carlos Oliveira",
@@ -68,16 +73,19 @@ export function Vendedores() {
       email: "roberto@cestaporte.com",
       phone: "(11) 77777-3333",
       role: "vendedor",
-      status: "Inativo",
+      status: "Ativo",
       joinDate: "10/03/2024",
       totalClients: 18,
       totalSales: "R$ 12.600,00",
       monthlyGoal: "R$ 8.000,00",
       achievement: 65
     },
-  ];
+  ]);
 
-  const filteredSellers = sellers.filter(seller =>
+  // Active sellers only (company employees)
+  const activeSellers = sellers.filter(seller => seller.status === "Ativo");
+  
+  const filteredSellers = activeSellers.filter(seller =>
     seller.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     seller.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -109,7 +117,24 @@ export function Vendedores() {
   };
 
   const handleEdit = (seller: any) => {
-    toast.info(`Editando perfil de ${seller.name}`);
+    setEditingSeller({ ...seller });
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (editingSeller) {
+      setSellers(sellers.map(seller => 
+        seller.id === editingSeller.id ? editingSeller : seller
+      ));
+      setIsEditModalOpen(false);
+      setEditingSeller(null);
+      toast.success(`Perfil de ${editingSeller.name} atualizado com sucesso`);
+    }
+  };
+
+  const handleDelete = (seller: any) => {
+    setSellers(sellers.filter(s => s.id !== seller.id));
+    toast.success(`${seller.name} foi removido da equipe`);
   };
 
   const handleDeactivate = (seller: any) => {
@@ -284,10 +309,10 @@ export function Vendedores() {
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="text-destructive" 
-                          onClick={() => handleDeactivate(seller)}
+                          onClick={() => handleDelete(seller)}
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          {seller.status === "Ativo" ? "Desativar" : "Ativar"}
+                          Excluir
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -298,6 +323,75 @@ export function Vendedores() {
           </Table>
         </CardContent>
       </Card>
+
+      {/* Edit Modal */}
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Editar Vendedor</DialogTitle>
+          </DialogHeader>
+          {editingSeller && (
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                  id="name"
+                  value={editingSeller.name}
+                  onChange={(e) => setEditingSeller({...editingSeller, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editingSeller.email}
+                  onChange={(e) => setEditingSeller({...editingSeller, email: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="phone">Telefone</Label>
+                <Input
+                  id="phone"
+                  value={editingSeller.phone}
+                  onChange={(e) => setEditingSeller({...editingSeller, phone: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="role">Função</Label>
+                <Select 
+                  value={editingSeller.role} 
+                  onValueChange={(value) => setEditingSeller({...editingSeller, role: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="admin">Administrador</SelectItem>
+                    <SelectItem value="vendedor">Vendedor</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="monthlyGoal">Meta Mensal</Label>
+                <Input
+                  id="monthlyGoal"
+                  value={editingSeller.monthlyGoal}
+                  onChange={(e) => setEditingSeller({...editingSeller, monthlyGoal: e.target.value})}
+                />
+              </div>
+              <div className="flex justify-end gap-2 pt-4">
+                <Button variant="outline" onClick={() => setIsEditModalOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={handleSaveEdit}>
+                  Salvar
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
