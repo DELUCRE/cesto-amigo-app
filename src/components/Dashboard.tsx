@@ -10,7 +10,9 @@ import {
   TrendingUp, 
   AlertCircle,
   Plus,
-  LogOut
+  LogOut,
+  Menu,
+  X
 } from "lucide-react";
 import { Navigation } from "./Navigation";
 import { UserRegistration } from "./UserRegistration";
@@ -30,6 +32,7 @@ interface DashboardProps {
 
 export function Dashboard({ userType, onLogout }: DashboardProps) {
   const [activeSection, setActiveSection] = useState("dashboard");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { profile } = useAuth();
 
   const stats = [
@@ -84,6 +87,15 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
       <header className="bg-gradient-card-subtle border-b border-border/50 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
+            {/* Mobile Menu Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="md:hidden"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
             <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
               <ShoppingBasket className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -101,16 +113,32 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="flex relative">
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+          />
+        )}
+
         {/* Sidebar Navigation */}
-        <Navigation 
-          userType={userType} 
-          activeSection={activeSection}
-          onSectionChange={setActiveSection}
-        />
+        <div className={`
+          fixed md:relative top-0 left-0 h-screen z-50 transform transition-transform duration-300 ease-in-out
+          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        `}>
+          <Navigation 
+            userType={userType} 
+            activeSection={activeSection}
+            onSectionChange={(section) => {
+              setActiveSection(section);
+              setIsMobileMenuOpen(false); // Close menu on mobile after selection
+            }}
+          />
+        </div>
 
         {/* Main Content */}
-        <main className="flex-1 p-6">
+        <main className="flex-1 p-4 md:p-6 w-full md:ml-0">{/* ... keep existing code (dashboard content) */}
           {activeSection === "dashboard" && (
             <div className="space-y-6">
               {/* Stats Grid */}

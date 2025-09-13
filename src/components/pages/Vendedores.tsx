@@ -35,11 +35,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export function Vendedores() {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingSeller, setEditingSeller] = useState<any>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [sellerToDelete, setSellerToDelete] = useState<any>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [sellers, setSellers] = useState([
     {
       id: 1,
@@ -133,8 +145,17 @@ export function Vendedores() {
   };
 
   const handleDelete = (seller: any) => {
-    setSellers(sellers.filter(s => s.id !== seller.id));
-    toast.success(`${seller.name} foi removido da equipe`);
+    setSellerToDelete(seller);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (sellerToDelete) {
+      setSellers(sellers.filter(s => s.id !== sellerToDelete.id));
+      toast.success(`${sellerToDelete.name} foi removido da equipe`);
+      setSellerToDelete(null);
+      setIsDeleteDialogOpen(false);
+    }
   };
 
   const handleDeactivate = (seller: any) => {
@@ -392,6 +413,28 @@ export function Vendedores() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir o vendedor "{sellerToDelete?.name}"? 
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
