@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useTheme } from "next-themes";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +29,9 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 export function Configuracoes() {
+  const { theme, setTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -45,8 +48,21 @@ export function Configuracoes() {
     address: "Rua das Flores, 123 - Centro"
   });
 
+  useEffect(() => {
+    setDarkMode(theme === 'dark');
+  }, [theme]);
+
   const handleNotificationChange = (key: string, value: boolean) => {
     setNotifications(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleThemeChange = (newTheme: string) => {
+    setTheme(newTheme);
+  };
+
+  const handleDarkModeToggle = (enabled: boolean) => {
+    setDarkMode(enabled);
+    setTheme(enabled ? 'dark' : 'light');
   };
 
   return (
@@ -240,7 +256,10 @@ export function Configuracoes() {
                     <p className="font-medium">Modo Escuro</p>
                     <p className="text-sm text-muted-foreground">Ativar tema escuro do sistema</p>
                   </div>
-                  <Switch />
+                  <Switch 
+                    checked={darkMode}
+                    onCheckedChange={handleDarkModeToggle}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
@@ -332,7 +351,7 @@ export function Configuracoes() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Tema</Label>
-                <Select defaultValue="system">
+                <Select value={theme || "system"} onValueChange={handleThemeChange}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

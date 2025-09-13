@@ -124,7 +124,7 @@ export function CestaBasica() {
     setSelectedPayment(paymentId);
   };
 
-  const handleFinalizePurchase = () => {
+  const handleFinalizePurchase = async () => {
     if (!selectedClient) {
       toast.error('Por favor, selecione um cliente');
       return;
@@ -137,9 +137,21 @@ export function CestaBasica() {
     const selectedClientData = clients.find(c => c.id === selectedClient);
     const selectedPaymentData = paymentOptions.find(p => p.id === selectedPayment);
     
-    toast.success(
-      `Pedido finalizado para ${selectedClientData?.name} - ${selectedPaymentData?.title} - Total: R$ ${totalPrice.toFixed(2).replace('.', ',')}`
-    );
+    try {
+      // Simular salvamento da venda
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      toast.success(
+        `Pedido finalizado! Cliente: ${selectedClientData?.name} | Pagamento: ${selectedPaymentData?.title} | Total: R$ ${totalPrice.toFixed(2).replace('.', ',')}`
+      );
+
+      // Resetar formulário
+      setSelectedClient("");
+      setSelectedPayment("");
+      setQuantity(1);
+    } catch (error) {
+      toast.error('Erro ao finalizar pedido. Tente novamente.');
+    }
   };
 
   return (

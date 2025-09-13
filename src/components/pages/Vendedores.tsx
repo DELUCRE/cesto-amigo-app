@@ -16,6 +16,7 @@ import {
   Trash2,
   Shield
 } from "lucide-react";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -101,6 +102,22 @@ export function Vendedores() {
     if (achievement >= 90) return "text-primary";
     if (achievement >= 70) return "text-secondary";
     return "text-muted-foreground";
+  };
+
+  const handleViewDetails = (seller: any) => {
+    toast.info(`Visualizando detalhes de ${seller.name}`);
+  };
+
+  const handleEdit = (seller: any) => {
+    toast.info(`Editando perfil de ${seller.name}`);
+  };
+
+  const handleDeactivate = (seller: any) => {
+    if (seller.status === "Ativo") {
+      toast.success(`${seller.name} foi desativado`);
+    } else {
+      toast.success(`${seller.name} foi ativado`);
+    }
   };
 
   return (
@@ -257,17 +274,20 @@ export function Vendedores() {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleViewDetails(seller)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Ver Detalhes
                         </DropdownMenuItem>
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(seller)}>
                           <Edit className="w-4 h-4 mr-2" />
                           Editar
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
+                        <DropdownMenuItem 
+                          className="text-destructive" 
+                          onClick={() => handleDeactivate(seller)}
+                        >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          Desativar
+                          {seller.status === "Ativo" ? "Desativar" : "Ativar"}
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
