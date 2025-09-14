@@ -41,7 +41,7 @@ export function Navigation({ userType, activeSection, onSectionChange, onClose }
   const menuItems = userType === 'admin' ? adminMenuItems : vendedorMenuItems;
 
   return (
-    <aside className="w-80 bg-card/95 border-r border-border/50 h-screen backdrop-blur-md shadow-2xl">
+    <aside className="w-80 bg-card/95 border-r border-border/50 h-full backdrop-blur-md shadow-2xl">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50">
         <h2 className="font-semibold text-lg">Menu</h2>
