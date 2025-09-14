@@ -125,22 +125,21 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
         {/* Sidenav Navigation */}
         <nav 
           className={`
-            sidenav fixed md:relative top-0 left-0 h-screen z-50 
+            sidenav fixed top-0 right-0 h-screen z-50 
             transform transition-all duration-300 ease-in-out
-            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-            bg-gradient-card-subtle border-r border-border/50 backdrop-blur-sm
-            w-64 shadow-elegant
+            ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
+            md:relative md:top-auto md:right-auto md:left-0 md:translate-x-0
           `}
           data-sidenav="true"
-          data-left="true"
         >
           <Navigation 
             userType={userType} 
             activeSection={activeSection}
             onSectionChange={(section) => {
               setActiveSection(section);
-              setIsMobileMenuOpen(false); // Close menu on mobile after selection
+              setIsMobileMenuOpen(false);
             }}
+            onClose={() => setIsMobileMenuOpen(false)}
           />
         </nav>
 
