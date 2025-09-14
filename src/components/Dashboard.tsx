@@ -128,7 +128,6 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
             sidenav fixed top-0 right-0 h-screen z-50 
             transform transition-all duration-300 ease-in-out
             ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}
-            md:relative md:top-auto md:right-auto md:left-0 md:translate-x-0
           `}
           data-sidenav="true"
         >
@@ -144,7 +143,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
         </nav>
 
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 w-full md:ml-0">{/* ... keep existing code (dashboard content) */}
+        <main className="flex-1 p-4 md:p-6 w-full">{/* ... keep existing code (dashboard content) */}
           {activeSection === "dashboard" && (
             <div className="space-y-6">
               {/* Stats Grid */}
