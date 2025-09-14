@@ -122,11 +122,18 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
           />
         )}
 
-        {/* Sidebar Navigation */}
-        <div className={`
-          fixed md:relative top-0 left-0 h-screen z-50 transform transition-transform duration-300 ease-in-out
-          ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
-        `}>
+        {/* Sidenav Navigation */}
+        <nav 
+          className={`
+            sidenav fixed md:relative top-0 left-0 h-screen z-50 
+            transform transition-all duration-300 ease-in-out
+            ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+            bg-gradient-card-subtle border-r border-border/50 backdrop-blur-sm
+            w-64 shadow-elegant
+          `}
+          data-sidenav="true"
+          data-left="true"
+        >
           <Navigation 
             userType={userType} 
             activeSection={activeSection}
@@ -135,7 +142,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
               setIsMobileMenuOpen(false); // Close menu on mobile after selection
             }}
           />
-        </div>
+        </nav>
 
         {/* Main Content */}
         <main className="flex-1 p-4 md:p-6 w-full md:ml-0">{/* ... keep existing code (dashboard content) */}
