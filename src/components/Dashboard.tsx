@@ -91,7 +91,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="md:hidden"
+              className="hover-scale"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
               {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -117,7 +117,7 @@ export function Dashboard({ userType, onLogout }: DashboardProps) {
         {/* Mobile Menu Overlay */}
         {isMobileMenuOpen && (
           <div 
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            className="fixed inset-0 bg-black/50 z-40"
             onClick={() => setIsMobileMenuOpen(false)}
           />
         )}
