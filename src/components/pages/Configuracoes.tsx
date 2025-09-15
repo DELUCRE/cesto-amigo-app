@@ -32,6 +32,7 @@ export function Configuracoes() {
   const { theme, setTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('green');
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -63,6 +64,28 @@ export function Configuracoes() {
   const handleDarkModeToggle = (enabled: boolean) => {
     setDarkMode(enabled);
     setTheme(enabled ? 'dark' : 'light');
+  };
+
+  // Definir cores disponíveis
+  const colorOptions = {
+    green: { name: 'Verde', light: '155 85% 25%', dark: '155 70% 45%' },
+    blue: { name: 'Azul', light: '215 85% 35%', dark: '215 70% 45%' },
+    purple: { name: 'Roxo', light: '270 85% 35%', dark: '270 70% 45%' },
+    red: { name: 'Vermelho', light: '0 84% 60%', dark: '0 70% 50%' }
+  };
+
+  const changeThemeColor = (color: string) => {
+    setSelectedColor(color);
+    const colorData = colorOptions[color as keyof typeof colorOptions];
+    
+    if (colorData) {
+      const root = document.documentElement;
+      const isDark = theme === 'dark';
+      
+      // Alterar apenas a cor primária
+      root.style.setProperty('--primary', isDark ? colorData.dark : colorData.light);
+      root.style.setProperty('--ring', isDark ? colorData.dark : colorData.light);
+    }
   };
 
   return (
@@ -366,10 +389,34 @@ export function Configuracoes() {
               <div className="space-y-2">
                 <Label>Cor do Tema</Label>
                 <div className="flex gap-2">
-                  <div className="w-8 h-8 bg-primary rounded-full cursor-pointer border-2 border-background shadow-md" />
-                  <div className="w-8 h-8 bg-secondary rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
-                  <div className="w-8 h-8 bg-accent rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
-                  <div className="w-8 h-8 bg-destructive rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
+                  <div 
+                    className={`w-8 h-8 rounded-full cursor-pointer border-2 transition-all ${
+                      selectedColor === 'green' ? 'border-foreground shadow-md' : 'border-transparent hover:border-foreground/50'
+                    }`}
+                    style={{ backgroundColor: 'hsl(155 85% 25%)' }}
+                    onClick={() => changeThemeColor('green')}
+                  />
+                  <div 
+                    className={`w-8 h-8 rounded-full cursor-pointer border-2 transition-all ${
+                      selectedColor === 'blue' ? 'border-foreground shadow-md' : 'border-transparent hover:border-foreground/50'
+                    }`}
+                    style={{ backgroundColor: 'hsl(215 85% 35%)' }}
+                    onClick={() => changeThemeColor('blue')}
+                  />
+                  <div 
+                    className={`w-8 h-8 rounded-full cursor-pointer border-2 transition-all ${
+                      selectedColor === 'purple' ? 'border-foreground shadow-md' : 'border-transparent hover:border-foreground/50'
+                    }`}
+                    style={{ backgroundColor: 'hsl(270 85% 35%)' }}
+                    onClick={() => changeThemeColor('purple')}
+                  />
+                  <div 
+                    className={`w-8 h-8 rounded-full cursor-pointer border-2 transition-all ${
+                      selectedColor === 'red' ? 'border-foreground shadow-md' : 'border-transparent hover:border-foreground/50'
+                    }`}
+                    style={{ backgroundColor: 'hsl(0 84% 60%)' }}
+                    onClick={() => changeThemeColor('red')}
+                  />
                 </div>
               </div>
             </CardContent>
