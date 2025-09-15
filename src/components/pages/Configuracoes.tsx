@@ -32,7 +32,6 @@ export function Configuracoes() {
   const { theme, setTheme } = useTheme();
   const [showPassword, setShowPassword] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-  const [selectedColorScheme, setSelectedColorScheme] = useState('default');
   const [notifications, setNotifications] = useState({
     email: true,
     push: false,
@@ -64,58 +63,6 @@ export function Configuracoes() {
   const handleDarkModeToggle = (enabled: boolean) => {
     setDarkMode(enabled);
     setTheme(enabled ? 'dark' : 'light');
-  };
-
-  // Definir paletas de cores
-  const colorSchemes = {
-    default: {
-      name: 'Verde Padrão',
-      primary: '155 85% 25%',
-      secondary: '35 80% 65%',
-      accent: '25 70% 85%'
-    },
-    blue: {
-      name: 'Azul Oceano',
-      primary: '215 85% 35%',
-      secondary: '195 70% 65%',
-      accent: '185 60% 85%'
-    },
-    purple: {
-      name: 'Roxo Elegante',
-      primary: '270 85% 35%',
-      secondary: '290 70% 65%',
-      accent: '310 60% 85%'
-    },
-    orange: {
-      name: 'Laranja Vibrante',
-      primary: '25 85% 45%',
-      secondary: '45 80% 65%',
-      accent: '65 70% 85%'
-    }
-  };
-
-  const applyColorScheme = (scheme: string) => {
-    setSelectedColorScheme(scheme);
-    const colors = colorSchemes[scheme as keyof typeof colorSchemes];
-    
-    if (colors) {
-      const root = document.documentElement;
-      root.style.setProperty('--primary', colors.primary);
-      root.style.setProperty('--secondary', colors.secondary);
-      root.style.setProperty('--accent', colors.accent);
-      
-      // Atualizar também as versões do modo escuro
-      if (theme === 'dark') {
-        // Ajustar cores para modo escuro (mais claras)
-        const primaryHsl = colors.primary.split(' ');
-        const secondaryHsl = colors.secondary.split(' ');
-        const accentHsl = colors.accent.split(' ');
-        
-        root.style.setProperty('--primary', `${primaryHsl[0]} 70% 45%`);
-        root.style.setProperty('--secondary', `${secondaryHsl[0]} 60% 45%`);
-        root.style.setProperty('--accent', `${accentHsl[0]} 50% 25%`);
-      }
-    }
   };
 
   return (
@@ -417,35 +364,12 @@ export function Configuracoes() {
               </div>
               
               <div className="space-y-2">
-                <Label>Paleta de Cores</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  {Object.entries(colorSchemes).map(([key, scheme]) => (
-                    <div
-                      key={key}
-                      className={`p-3 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md ${
-                        selectedColorScheme === key 
-                          ? 'border-primary bg-primary/5' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                      onClick={() => applyColorScheme(key)}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div 
-                          className="w-4 h-4 rounded-full border" 
-                          style={{ backgroundColor: `hsl(${scheme.primary})` }}
-                        />
-                        <div 
-                          className="w-4 h-4 rounded-full border" 
-                          style={{ backgroundColor: `hsl(${scheme.secondary})` }}
-                        />
-                        <div 
-                          className="w-4 h-4 rounded-full border" 
-                          style={{ backgroundColor: `hsl(${scheme.accent})` }}
-                        />
-                      </div>
-                      <p className="text-xs font-medium">{scheme.name}</p>
-                    </div>
-                  ))}
+                <Label>Cor do Tema</Label>
+                <div className="flex gap-2">
+                  <div className="w-8 h-8 bg-primary rounded-full cursor-pointer border-2 border-background shadow-md" />
+                  <div className="w-8 h-8 bg-secondary rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
+                  <div className="w-8 h-8 bg-accent rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
+                  <div className="w-8 h-8 bg-destructive rounded-full cursor-pointer border-2 border-transparent hover:border-background" />
                 </div>
               </div>
             </CardContent>
