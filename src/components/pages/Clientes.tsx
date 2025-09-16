@@ -16,16 +16,14 @@ import {
   MoreHorizontal,
   Eye,
   Edit,
-  Trash2
+  Trash2,
+  ChevronDown
 } from "lucide-react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -172,83 +170,88 @@ export function Clientes() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Cliente</TableHead>
-                <TableHead>Contato</TableHead>
-                <TableHead>Endereço</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Último Pedido</TableHead>
-                <TableHead>Total Gasto</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredClients.map((client) => (
-                <TableRow key={client.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{client.name}</p>
-                      <p className="text-sm text-muted-foreground">ID: {client.id.substring(0, 8)}...</p>
+          <div className="space-y-2">
+            {filteredClients.map((client) => (
+              <Collapsible key={client.id}>
+                <div className="border rounded-lg p-4 bg-card">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full text-left hover:bg-muted/50 p-2 -m-2 rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        <Users className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium">{client.name}</p>
+                        <p className="text-sm text-muted-foreground">ID: {client.id.substring(0, 8)}...</p>
+                      </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      {client.email && (
-                        <div className="flex items-center gap-2">
-                          <Mail className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-sm">{client.email}</span>
-                        </div>
-                      )}
-                      {client.phone && (
-                        <div className="flex items-center gap-2">
-                          <Phone className="w-3 h-3 text-muted-foreground" />
-                          <span className="text-sm">{client.phone}</span>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-sm">Cadastrado em {new Date(client.created_at).toLocaleDateString('pt-BR')}</span>
+                      <Badge className={client.email && client.phone ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}>
+                        {client.email && client.phone ? "Ativo" : "Incompleto"}
+                      </Badge>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={client.email && client.phone ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}>
-                      {client.email && client.phone ? "Ativo" : "Incompleto"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>-</TableCell>
-                  <TableCell className="font-medium">-</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Ver Detalhes
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm text-muted-foreground">Informações de Contato</h4>
+                        {client.email && (
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">{client.email}</span>
+                          </div>
+                        )}
+                        {client.phone && (
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-4 h-4 text-muted-foreground" />
+                            <span className="text-sm">{client.phone}</span>
+                          </div>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">Cadastrado em {new Date(client.created_at).toLocaleDateString('pt-BR')}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm text-muted-foreground">Resumo de Vendas</h4>
+                        <div className="text-sm">
+                          <p>Último Pedido: <span className="text-muted-foreground">-</span></p>
+                          <p>Total Gasto: <span className="font-medium">-</span></p>
+                        </div>
+                        
+                        <div className="flex gap-2 pt-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreHorizontal className="w-4 h-4 mr-2" />
+                                Ações
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-destructive">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            ))}
+          </div>
         </CardContent>
       </Card>
     </div>

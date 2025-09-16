@@ -15,20 +15,18 @@ import {
   Edit,
   Trash2,
   Shield,
-  X
+  X,
+  ChevronDown
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -250,98 +248,108 @@ export function Vendedores() {
           </div>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Vendedor</TableHead>
-                <TableHead>Contato</TableHead>
-                <TableHead>Função</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Clientes</TableHead>
-                <TableHead>Vendas Totais</TableHead>
-                <TableHead>Atingimento</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredSellers.map((seller) => (
-                <TableRow key={seller.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{seller.name}</p>
-                      <p className="text-sm text-muted-foreground">Desde {seller.joinDate}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-sm">{seller.email}</span>
+          <div className="space-y-2">
+            {filteredSellers.map((seller) => (
+              <Collapsible key={seller.id}>
+                <div className="border rounded-lg p-4 bg-card">
+                  <CollapsibleTrigger className="flex items-center justify-between w-full text-left hover:bg-muted/50 p-2 -m-2 rounded">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
+                        {seller.role === 'admin' ? (
+                          <Shield className="w-4 h-4 text-primary" />
+                        ) : (
+                          <UserCheck className="w-4 h-4 text-primary" />
+                        )}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Phone className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-sm">{seller.phone}</span>
+                      <div>
+                        <p className="font-medium">{seller.name}</p>
+                        <p className="text-sm text-muted-foreground">Desde {seller.joinDate}</p>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>
                     <div className="flex items-center gap-2">
-                      {seller.role === 'admin' && <Shield className="w-3 h-3" />}
                       <Badge className={getRoleColor(seller.role)}>
-                        {seller.role === 'admin' ? 'Administrador' : 'Vendedor'}
+                        {seller.role === 'admin' ? 'Admin' : 'Vendedor'}
                       </Badge>
+                      <Badge className={getStatusColor(seller.status)}>
+                        {seller.status}
+                      </Badge>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform data-[state=open]:rotate-180" />
                     </div>
-                  </TableCell>
-                  <TableCell>
-                    <Badge className={getStatusColor(seller.status)}>
-                      {seller.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{seller.totalClients}</TableCell>
-                  <TableCell className="font-medium">{seller.totalSales}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className={`font-medium ${getAchievementColor(seller.achievement)}`}>
-                        {seller.achievement}%
-                      </span>
-                      <div className="w-16 h-2 bg-muted rounded-full">
-                        <div 
-                          className="h-full bg-primary rounded-full transition-all duration-300"
-                          style={{ width: `${Math.min(seller.achievement, 100)}%` }}
-                        />
+                  </CollapsibleTrigger>
+                  
+                  <CollapsibleContent className="pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm text-muted-foreground">Informações de Contato</h4>
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">{seller.email}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm">{seller.phone}</span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        <h4 className="font-medium text-sm text-muted-foreground">Performance</h4>
+                        <div className="space-y-2">
+                          <div>
+                            <p className="text-sm">Clientes: <span className="font-medium">{seller.totalClients}</span></p>
+                            <p className="text-sm">Vendas Totais: <span className="font-medium">{seller.totalSales}</span></p>
+                            <p className="text-sm">Meta Mensal: <span className="font-medium">{seller.monthlyGoal}</span></p>
+                          </div>
+                          
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm">Atingimento</span>
+                              <span className={`font-medium text-sm ${getAchievementColor(seller.achievement)}`}>
+                                {seller.achievement}%
+                              </span>
+                            </div>
+                            <div className="w-full h-2 bg-muted rounded-full">
+                              <div 
+                                className="h-full bg-primary rounded-full transition-all duration-300"
+                                style={{ width: `${Math.min(seller.achievement, 100)}%` }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex gap-2 pt-2">
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <MoreHorizontal className="w-4 h-4 mr-2" />
+                                Ações
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleViewDetails(seller)}>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Ver Detalhes
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEdit(seller)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                className="text-destructive" 
+                                onClick={() => handleDelete(seller)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Excluir
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleViewDetails(seller)}>
-                          <Eye className="w-4 h-4 mr-2" />
-                          Ver Detalhes
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleEdit(seller)}>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive" 
-                          onClick={() => handleDelete(seller)}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Excluir
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            ))}
+          </div>
         </CardContent>
       </Card>
 
